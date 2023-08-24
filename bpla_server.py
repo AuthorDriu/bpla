@@ -5,16 +5,17 @@ import links
 
 
 app = Flask(__name__)
+app.config["DEBUG"] = True
 
 db = SQLAlchemy()
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db" # "postgresql://klever:1@213.59.167.213:5432/igra"
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://klever:1@213.59.167.213:5432/igra"
 db.init_app(app=app)
 
 
 # MODELS ###############################################################
 
 class Users(db.Model):
-    __tablename__ = "users"
+    __tablename__ = "registered"
 
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(50), nullable=False)
@@ -128,6 +129,52 @@ def is_user_passed():
         "has-passed": True
     })
 
+@app.route("/get_phones", methods=["GET",])
+def get_phones():
+    try:
+        phones = db.session.query(Users).all()
+    except:
+        return jsonify({
+            "success": False
+        })
+    return jsonify({
+        "success": True,
+        "phones": phones
+    })
+
+@app.route("/get_user", methods=["GET",])
+def get_user():
+    phone_number = request.args["phone-number"]
+    try:
+        results = db.session.query(Users).filter_by(phone_number=phone_number).one()
+    except:
+        return jsonify({
+            "success": False
+        })
+    return jsonify({
+        "success": True,
+        "first-name": results.first_name,
+        "last-name": results.last_name,
+        "middle-name": results.middle_name,
+        "phone-number": results.phone_number,
+        "education-place": results.education_place
+    })
+
+@app.route("/get_result", methods=["GET",])
+def get_result():
+    phone_number = request.args["phone-number"]
+    try:
+        results = db.session.query(Results).filter_by(phone_number=phone_number).one()
+    except:
+        return jsonify({
+            "success": False
+        })
+    return jsonify({
+        "success": True,
+        "phone-number": results.phone_number,
+        "score": results.score,
+        "time-spent": results.time_spent
+    })
 
 if __name__ == "__main__":
     with app.app_context():
