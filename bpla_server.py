@@ -139,7 +139,7 @@ def get_phones():
         })
     return jsonify({
         "success": True,
-        "phones": phones
+        "phones": [user.phone_number for user in phones]
     })
 
 @app.route("/get_user", methods=["GET",])
