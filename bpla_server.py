@@ -7,7 +7,7 @@ import links
 app = Flask(__name__)
 
 db = SQLAlchemy()
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db" # "postgresql://klever:1@213.59.167.213:5432/igra"
 db.init_app(app=app)
 
 
@@ -105,28 +105,28 @@ def set_result():
 @app.route("/is_a_user", methods=["GET",])
 def is_a_user():
     phone_number = request.args["phone-number"]
-    results = db.session.query(Users).filter_by(phone_number=phone_number).one()
-    if results is None:
+    try:
+        results = db.session.query(Users).filter_by(phone_number=phone_number).one()
+    except:
         return jsonify({
             "is-a-user": False
         })
-    else:
-        return jsonify({
-            "is-a-user": True
-        })
+    return jsonify({
+        "is-a-user": True
+    })
 
 @app.route("/has_passed", methods=["GET",])
 def is_user_passed():
     phone_number = request.args["phone-number"]
-    results = db.session.query(Results).filter_by(phone_number=phone_number).one()
-    if results is None:
+    try:
+        results = db.session.query(Results).filter_by(phone_number=phone_number).one()
+    except:
         return jsonify({
             "has-passed": False
         })
-    else:
-        return jsonify({
-            "has-passed": True
-        })
+    return jsonify({
+        "has-passed": True
+    })
 
 
 if __name__ == "__main__":
